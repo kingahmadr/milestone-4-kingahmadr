@@ -1,0 +1,12 @@
+.git
+.gitignore
+__pycache__
+venv
+# poetry.lock
+# pyproject.toml
+docker-compose.yaml
+docker-compose.yml
+Dockerfile.stage
+Dockerfile
+mysql_app_data
+app_data
