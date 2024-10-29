@@ -1,5 +1,3 @@
-from .base import BaseConfig
+from .base import *  # noqa
 import os
-
-class ProdConfig(BaseConfig):
-    DATABASE_URL: str = os.getenv("DB_PROD_URI")
+SQLALCHEMY_DATABASE_URI = os.getenv("DB_URI_PROD")
