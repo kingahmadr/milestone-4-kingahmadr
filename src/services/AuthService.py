@@ -3,7 +3,7 @@ import jwt
 from datetime import datetime, timedelta, timezone
 from functools import wraps
 from flask import jsonify, request
-from src.models.UserRoleModel import User, Role, UserRole
+from src.models.BankingModel import User, Role, UserRole
 from src.config.settings import db
 
 class Authentication:
@@ -13,7 +13,7 @@ class Authentication:
         payload = {
             'user_id': user_id,
             'user_role': role_slug,
-            'exp': datetime.now(timezone.utc) + timedelta(hours=1)  # Token expires in 1 hour
+            'exp': datetime.now(timezone.utc) + timedelta(hours=1)  # Token expires 1 hours
         }
         token = jwt.encode(payload, JWT_SECRET, algorithm='HS256')
         # print(f"Generated Token: {token}")  # Debugging
@@ -25,6 +25,10 @@ class Authentication:
         def decorated(*args, **kwargs):
             JWT_SECRET = os.getenv('JWT_SECRET')
             token = None
+            if not token:
+                return jsonify({"error": "Token is missing!"}), 403
+            
+            
             # Check if token is passed in the Authorization header
             if 'Authorization' in request.headers:
                 auth_header = request.headers['Authorization']
@@ -37,8 +41,6 @@ class Authentication:
                 else:
                     return jsonify({"error": "Invalid Authorization header format"}), 403
 
-            if not token:
-                return jsonify({"error": "Token is missing!"}), 403
 
             try:
                 # Decode the token to get the user ID

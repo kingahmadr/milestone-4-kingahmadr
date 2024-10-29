@@ -24,6 +24,7 @@ pyjwt = "^2.9.0"
 cryptography = "^43.0.3"
 email-validator = "^2.2.0"
 hypercorn = "^0.17.3"
+setuptools = "^75.3.0"
 
 
 [build-system]

@@ -1,9 +1,10 @@
 from flask.views import MethodView
 from flask import jsonify, request, render_template, redirect, url_for
-from src.models import User, Role
+from src.models.BankingModel import User, Role
 from src.config.settings import db
 from flasgger import swag_from
 from werkzeug.security import generate_password_hash
+from src.services.Validator import Validator
 
 
 class UserView(MethodView):
@@ -88,7 +89,7 @@ class UserView(MethodView):
             if User.query.filter_by(email=email).first():
                 return jsonify({"error": "User already exists!"}), 400
             
-            email_input, status_code = User.email_validation(email_request=email)
+            email_input, status_code = Validator.email_validation(email_request=email)
 
             if status_code == 200:
                 # Hash the user's password and create a new user

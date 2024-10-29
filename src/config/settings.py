@@ -77,9 +77,9 @@ def create_app(settings_conf=None):
     from src.router.Login import LoginView
     from src.router.Logout import LogoutView
     # from src.router.UserFetch import UserFetchView
-    from router.User import RegisterView
+    from src.router.User import UserView
     # from src.router.Review import ReviewView
-    from src.router.TestQuery import TestQueryView
+    # from src.router.TestQuery import TestQueryView
     from src.models.BankingModel import User
     from flask_login import LoginManager
 
@@ -99,8 +99,9 @@ def create_app(settings_conf=None):
     app.add_url_rule('/auth/v1/logout', view_func=logout_view, methods=['GET','POST'])
     
 
-    register_view = RegisterView.as_view('register_view')
-    app.add_url_rule('/auth/v1/register', view_func=register_view, methods=['GET','POST'])
+    user_view = UserView.as_view('user_view')
+    app.add_url_rule('/auth/v1/user', view_func=user_view, methods=['POST'])
+    app.add_url_rule('/auth/v1/user/me', view_func=user_view, methods=['GET'])
     
 
     # test_query_view = TestQueryView.as_view('test_query_view')
