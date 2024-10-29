@@ -1,12 +1,12 @@
 from flask.views import MethodView
 from flask import jsonify, request, render_template, redirect, url_for
-from src.models.UserRoleModel import User, Role
+from src.models import User, Role
 from src.config.settings import db
 from flasgger import swag_from
 from werkzeug.security import generate_password_hash
 
 
-class RegisterView(MethodView):
+class UserView(MethodView):
 
     def get(self):
         msg=''

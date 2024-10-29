@@ -76,11 +76,11 @@ def create_app(settings_conf=None):
 
     from src.router.Login import LoginView
     from src.router.Logout import LogoutView
-    from src.router.UserFetch import UserFetchView
-    from src.router.Register import RegisterView
-    from src.router.Review import ReviewView
+    # from src.router.UserFetch import UserFetchView
+    from router.User import RegisterView
+    # from src.router.Review import ReviewView
     from src.router.TestQuery import TestQueryView
-    from src.models.UserRoleModel import User
+    from src.models.BankingModel import User
     from flask_login import LoginManager
 
     login_manager = LoginManager(app)
@@ -92,27 +92,19 @@ def create_app(settings_conf=None):
 
 
     login_view = LoginView.as_view('login_view')
-    app.add_url_rule('/v2/login', view_func=login_view, methods=['GET','POST'])
-    app.add_url_rule('/v2/login/<int:user_id>', view_func=login_view, methods=['GET'])
+    app.add_url_rule('/auth/v1/login', view_func=login_view, methods=['GET','POST'])
+    app.add_url_rule('/auth/v1/login/<int:user_id>', view_func=login_view, methods=['GET'])
 
     logout_view = LogoutView.as_view('logout_view')
-    app.add_url_rule('/v2/logout', view_func=logout_view, methods=['GET','POST'])
+    app.add_url_rule('/auth/v1/logout', view_func=logout_view, methods=['GET','POST'])
     
-    user_fetch_view = UserFetchView.as_view('user_fetch_view')
-    app.add_url_rule('/v2/fetch-user', view_func=user_fetch_view, methods=['GET'])
-    app.add_url_rule('/v2/fetch-user/<int:user_id>', view_func=user_fetch_view, methods=['GET'])
 
     register_view = RegisterView.as_view('register_view')
-    app.add_url_rule('/v2/register', view_func=register_view, methods=['GET','POST'])
+    app.add_url_rule('/auth/v1/register', view_func=register_view, methods=['GET','POST'])
     
-    review_view = ReviewView.as_view('review_view')
-    app.add_url_rule('/v2/review', view_func=review_view, methods=['GET','POST'])
-    app.add_url_rule('/v2/review/<int:review_id>', view_func=review_view, methods=['GET','PUT','DELETE'])
 
-    test_query_view = TestQueryView.as_view('test_query_view')
-    app.add_url_rule('/v2/getquery', view_func=test_query_view, methods=['GET'])
-
-
+    # test_query_view = TestQueryView.as_view('test_query_view')
+    # app.add_url_rule('/v2/getquery', view_func=test_query_view, methods=['GET'])
     
     @app.route('/')
     def hello_from_api():

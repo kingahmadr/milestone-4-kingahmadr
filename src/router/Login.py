@@ -1,7 +1,8 @@
 from flask.views import MethodView
 from flask import jsonify, request, render_template, make_response
 from flasgger import swag_from
-from src.models.UserRoleModel import User, Role, UserRole
+# from src.models.UserRoleModel import User, Role, UserRole
+from src.models.BankingModel import User, Role, UserRole
 from src.config.settings import db
 from src.services.AuthService import Authentication
 from flask_login import login_user, login_required
