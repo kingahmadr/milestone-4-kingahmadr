@@ -186,8 +186,8 @@ class LoginView(MethodView):
             # Generate JWT token for the user
 
             if user:
-                login_user(user)
-                response_user = login_user(user)
+                # login_user(user)
+                # response_user = login_user(user)
                 role_slugs = (
                     db.session.query(Role.slug, User.email)
                     .join(UserRole, User.id == UserRole.user_id)
@@ -203,8 +203,8 @@ class LoginView(MethodView):
                     # Create a response
             response = make_response(jsonify({
                 "message": "Login successful!",
-                "token" : token,
-                "response_user" : response_user
+                "token" : token
+                # "response_user" : response_user
             }), 200)
 
             # response.set_cookie('jwt_token', token, httponly=True, secure=True)
@@ -243,7 +243,7 @@ class LoginView(MethodView):
                 "message": "Login successful!"
             }), 200)
 
-            response.set_cookie('jwt_token', token, httponly=True, secure=True)
+            # response.set_cookie('jwt_token', token, httponly=True, secure=True)
 
             return response
 

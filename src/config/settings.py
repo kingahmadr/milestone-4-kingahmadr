@@ -78,6 +78,7 @@ def create_app(settings_conf=None):
     from src.router.Logout import LogoutView
     # from src.router.UserFetch import UserFetchView
     from src.router.User import UserView
+    from src.router.Account import AccountView
     # from src.router.Review import ReviewView
     # from src.router.TestQuery import TestQueryView
     from src.models.BankingModel import User
@@ -96,12 +97,16 @@ def create_app(settings_conf=None):
     app.add_url_rule('/auth/v1/login/<int:user_id>', view_func=login_view, methods=['GET'])
 
     logout_view = LogoutView.as_view('logout_view')
-    app.add_url_rule('/auth/v1/logout', view_func=logout_view, methods=['GET','POST'])
+    app.add_url_rule('/v1/logout', view_func=logout_view, methods=['GET','POST'])
     
 
     user_view = UserView.as_view('user_view')
-    app.add_url_rule('/auth/v1/user', view_func=user_view, methods=['POST'])
-    app.add_url_rule('/auth/v1/user/me', view_func=user_view, methods=['GET'])
+    app.add_url_rule('/v1/user', view_func=user_view, methods=['POST'])
+    app.add_url_rule('/v1/user/me', view_func=user_view, methods=['GET'])
+
+    account_view = AccountView.as_view('account_view')
+    app.add_url_rule('/v1/account', view_func=account_view, methods=['POST'])
+    # app.add_url_rule('/v1/account/me', view_func=account_view, methods=['GET'])
     
 
     # test_query_view = TestQueryView.as_view('test_query_view')

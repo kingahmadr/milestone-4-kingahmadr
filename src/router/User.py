@@ -136,11 +136,8 @@ class UserView(MethodView):
 
                 db.session.add(new_user)
                 db.session.commit()
-
-                # return jsonify({"message": "User registered successfully!"}), 201
                 
                 return redirect(url_for('login_view'))
-            # return jsonify({"message": "User registered successfully!"}), 201
             else:
                 return jsonify(email_input), status_code
 

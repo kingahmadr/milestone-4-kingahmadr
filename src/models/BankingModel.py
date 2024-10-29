@@ -11,7 +11,7 @@ class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(80), unique=True, nullable=False)
     email = db.Column(db.String(120), unique=True, nullable=False)
-    password_hash = db.Column(db.String(128), nullable=False)
+    password_hash = db.Column(db.String(255), nullable=False)
     created_at = db.Column(db.DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))
     updated_at = db.Column(db.DateTime(timezone=True), default=lambda: datetime.now(timezone.utc), onupdate=lambda: datetime.now(timezone.utc))
 
@@ -46,18 +46,18 @@ class Role(db.Model):
 class UserRole(db.Model):
     __tablename__ = 'user_roles'
 
-    id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
-    role_id = db.Column(db.Integer, db.ForeignKey('role.id'), nullable=False)
-    created_at = db.Column(db.DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))
-    updated_at = db.Column(db.DateTime(timezone=True), default=lambda: datetime.now(timezone.utc), onupdate=lambda: datetime.now(timezone.utc))
+    # id = db.Column(db.Integer, primary_key=True)
+    # user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    # role_id = db.Column(db.Integer, db.ForeignKey('role.id'), nullable=False)
+    # created_at = db.Column(db.DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))
+    # updated_at = db.Column(db.DateTime(timezone=True), default=lambda: datetime.now(timezone.utc), onupdate=lambda: datetime.now(timezone.utc))
 
-    def __init__(self, user_id, role_id):
-        self.user_id = user_id
-        self.role_id = role_id
+    # def __init__(self, user_id, role_id):
+    #     self.user_id = user_id
+    #     self.role_id = role_id
 
-    def __repr__(self): 
-        return f'<UserRole {self.user_id} {self.role_id}>'
+    # def __repr__(self): 
+    #     return f'<UserRole {self.user_id} {self.role_id}>'
 
     user_id = db.Column(db.Integer, db.ForeignKey("users.id"), primary_key=True)
     role_id = db.Column(db.Integer, db.ForeignKey("roles.id"), primary_key=True)
@@ -75,6 +75,7 @@ class Account(db.Model):
     updated_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc), onupdate=lambda: datetime.now(timezone.utc))
     
      # One account can have many transactions
+    user = db.relationship('User', back_populates='accounts')
     transactions_from = db.relationship('Transaction', foreign_keys='Transaction.from_account_id', back_populates='from_account')
     transactions_to = db.relationship('Transaction', foreign_keys='Transaction.to_account_id', back_populates='to_account')
     

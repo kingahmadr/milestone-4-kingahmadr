@@ -9,7 +9,7 @@ class RoleSeeder(Seeder):
         # Create the roles
         roles = [
             Role(name="Administrator", slug="admin"),
-            Role(name="Super Administrator", slug="super-admin")
+            Role(name="User", slug="user")
         ]
         
         # Add roles to the session

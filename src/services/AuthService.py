@@ -25,8 +25,6 @@ class Authentication:
         def decorated(*args, **kwargs):
             JWT_SECRET = os.getenv('JWT_SECRET')
             token = None
-            if not token:
-                return jsonify({"error": "Token is missing!"}), 403
             
             
             # Check if token is passed in the Authorization header
@@ -41,6 +39,8 @@ class Authentication:
                 else:
                     return jsonify({"error": "Invalid Authorization header format"}), 403
 
+            if not token:
+                return jsonify({"error": "Token is missing!"}), 403
 
             try:
                 # Decode the token to get the user ID
@@ -84,4 +84,14 @@ class Authentication:
                 return f(current_user, *args, **kwargs)
             return decorated
         return decorator
+    
+    def get_id_from_token(token):
+        JWT_SECRET = os.getenv('JWT_SECRET')
+        try:
+            data = jwt.decode(token, JWT_SECRET, algorithms=["HS256"])
+            return data['user_id']
+        except jwt.ExpiredSignatureError:
+            return None
+        except jwt.DecodeError:
+            return None  # Handle invalid token here
        
