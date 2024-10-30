@@ -1,11 +1,11 @@
 from datetime import datetime, timezone
 from flask_login import UserMixin
 from src.config.settings import db
-from email_validator import validate_email, EmailNotValidError
-from flask import jsonify
+# from email_validator import validate_email, EmailNotValidError
+# from flask import jsonify
 
 
-class User(db.Model):
+class User(db.Model,UserMixin):
     __tablename__ = 'users'
 
     id = db.Column(db.Integer, primary_key=True)
@@ -45,19 +45,6 @@ class Role(db.Model):
 
 class UserRole(db.Model):
     __tablename__ = 'user_roles'
-
-    # id = db.Column(db.Integer, primary_key=True)
-    # user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
-    # role_id = db.Column(db.Integer, db.ForeignKey('role.id'), nullable=False)
-    # created_at = db.Column(db.DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))
-    # updated_at = db.Column(db.DateTime(timezone=True), default=lambda: datetime.now(timezone.utc), onupdate=lambda: datetime.now(timezone.utc))
-
-    # def __init__(self, user_id, role_id):
-    #     self.user_id = user_id
-    #     self.role_id = role_id
-
-    # def __repr__(self): 
-    #     return f'<UserRole {self.user_id} {self.role_id}>'
 
     user_id = db.Column(db.Integer, db.ForeignKey("users.id"), primary_key=True)
     role_id = db.Column(db.Integer, db.ForeignKey("roles.id"), primary_key=True)

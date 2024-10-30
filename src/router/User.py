@@ -1,5 +1,6 @@
 from flask.views import MethodView
 from flask import jsonify, request, redirect, url_for
+from flask_login import login_required
 from src.models.BankingModel import User, Role, UserRole
 from src.config.settings import db
 from flasgger import swag_from
@@ -10,6 +11,7 @@ from src.services.AuthService import Authentication
 
 class UserView(MethodView):
 
+    @login_required
     @Authentication.token_required
     def get(self, current_user):
         token = request.headers.get('Authorization')

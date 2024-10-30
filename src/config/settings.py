@@ -97,7 +97,7 @@ def create_app(settings_conf=None):
     app.add_url_rule('/auth/v1/login/<int:user_id>', view_func=login_view, methods=['GET'])
 
     logout_view = LogoutView.as_view('logout_view')
-    app.add_url_rule('/v1/logout', view_func=logout_view, methods=['GET','POST'])
+    app.add_url_rule('/auth/v1/logout', view_func=logout_view, methods=['GET','POST'])
     
 
     user_view = UserView.as_view('user_view')

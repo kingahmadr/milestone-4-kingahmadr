@@ -2,118 +2,118 @@ from flask.views import MethodView
 from flask import jsonify, request, make_response
 from flasgger import swag_from
 # from src.models.UserRoleModel import User, Role, UserRole
+from werkzeug.security import check_password_hash
 from src.models.BankingModel import User, Role, UserRole
 from src.config.settings import db
 from src.services.AuthService import Authentication
-from flask_login import login_required
+from flask_login import login_user
 
-from werkzeug.security import check_password_hash
 
 class LoginView(MethodView):
 
     # def get(self):
     #     msg=''
     #     return render_template('login.html', msg = msg)
-    @swag_from({
-            'tags':['Authentication'],
-            'summary':'Get User Data',
-            'parameters':[
-                {
-                    'name': 'user_id',
-                    'in': 'path',
-                    'type': 'integer',
-                    'required': False,
-                    'description': 'ID of the users to retrieve'
-                }
-            ],
-            'responses': {
-                200:{
-                    'description':'user(s) retrived successfully',
-                    'schema':{
-                        'type':'object',
-                        'properties':{
-                            'Users': {
-                                'type':'array',
-                                'items':{
-                                    'type':'object',
-                                    'properties':{
-                                        'id': {
-                                            'type': 'integer',
-                                            'example': 1
-                                        },
-                                        'username': {
-                                            'type':'string',
-                                            'example': 'mamad'
-                                        },
-                                        'email': {
-                                            'type': 'email',
-                                            'example': 'mamad@email.com'
-                                        },
-                                        'password_hash':{
-                                            'type':'string',
-                                            'example':'<Encrypted Password with Hash algorithm>'
-                                        }
-                                    }
+    # @swag_from({
+    #         'tags':['Authentication'],
+    #         'summary':'Get User Data',
+    #         'parameters':[
+    #             {
+    #                 'name': 'user_id',
+    #                 'in': 'path',
+    #                 'type': 'integer',
+    #                 'required': False,
+    #                 'description': 'ID of the users to retrieve'
+    #             }
+    #         ],
+    #         'responses': {
+    #             200:{
+    #                 'description':'user(s) retrived successfully',
+    #                 'schema':{
+    #                     'type':'object',
+    #                     'properties':{
+    #                         'Users': {
+    #                             'type':'array',
+    #                             'items':{
+    #                                 'type':'object',
+    #                                 'properties':{
+    #                                     'id': {
+    #                                         'type': 'integer',
+    #                                         'example': 1
+    #                                     },
+    #                                     'username': {
+    #                                         'type':'string',
+    #                                         'example': 'mamad'
+    #                                     },
+    #                                     'email': {
+    #                                         'type': 'email',
+    #                                         'example': 'mamad@email.com'
+    #                                     },
+    #                                     'password_hash':{
+    #                                         'type':'string',
+    #                                         'example':'<Encrypted Password with Hash algorithm>'
+    #                                     }
+    #                                 }
                                     
-                                }
-                            }
-                        }
-                    }
-                },
-                404:{
-                    'description': 'User not found',
-                    'schema':{
-                        'type':'object',
-                        'properties':{
-                            'error':{
-                                'type': 'string',
-                                'example': 'User not found'
-                            }
-                        }
-                    }
-                }
-            }
+    #                             }
+    #                         }
+    #                     }
+    #                 }
+    #             },
+    #             404:{
+    #                 'description': 'User not found',
+    #                 'schema':{
+    #                     'type':'object',
+    #                     'properties':{
+    #                         'error':{
+    #                             'type': 'string',
+    #                             'example': 'User not found'
+    #                         }
+    #                     }
+    #                 }
+    #             }
+    #         }
 
-        })
-    @login_required
-    def get(self, user_id=None):
-        user_fields = ['id', 'username','email', 'password_hash']
+    #     })
+    # @login_required
+    # def get(self, user_id=None):
+    #     user_fields = ['id', 'username','email', 'password_hash']
 
-        if user_id is None:
-            # users = User.query.all()
-            user_details = (
-                    db.session.query(User.id, User.username, User.email, User.password_hash, Role.slug)
-                    .join(UserRole, User.id == UserRole.user_id)
-                    .join(Role, UserRole.role_id == Role.id)    
-                    .all()
-                )
-            # results = [{field: getattr(user, field) for field in fields} for user in users]
-            results = [
-                {**{field: row[i] for i, field in enumerate(user_fields)}, 'role': row[4]}
-                for row in user_details
-            ]
+    #     if user_id is None:
+    #         # users = User.query.all()
+    #         user_details = (
+    #                 db.session.query(User.id, User.username, User.email, User.password_hash, Role.slug)
+    #                 .join(UserRole, User.id == UserRole.user_id)
+    #                 .join(Role, UserRole.role_id == Role.id)    
+    #                 .all()
+    #             )
+    #         # results = [{field: getattr(user, field) for field in fields} for user in users]
+    #         results = [
+    #             {**{field: row[i] for i, field in enumerate(user_fields)}, 'role': row[4]}
+    #             for row in user_details
+    #         ]
 
-            return jsonify({"Users":results})
-        else:
-            user = db.session.get(User, user_id)
-            if not user:
-                return jsonify({"error": "User not found"}), 404
+    #         return jsonify({"Users":results})
+    #     else:
+    #         user = db.session.get(User, user_id)
+    #         if not user:
+    #             return jsonify({"error": "User not found"}), 404
 
-            # user_data = {field: getattr(user, field) for field in fields}
-            user_detail = (
-                db.session.query(User.id, User.username, User.email, User.password_hash, Role.slug)
-                .join(UserRole, User.id == UserRole.user_id)
-                .join(Role, UserRole.role_id == Role.id)
-                .filter(User.id == user_id)
-                .all()
-            )
-            results = [
-                {**{field: row[i] for i, field in enumerate(user_fields)}, 'role': row[4]}
-                for row in user_detail
-            ]
+    #         # user_data = {field: getattr(user, field) for field in fields}
+    #         user_detail = (
+    #             db.session.query(User.id, User.username, User.email, User.password_hash, Role.slug)
+    #             .join(UserRole, User.id == UserRole.user_id)
+    #             .join(Role, UserRole.role_id == Role.id)
+    #             .filter(User.id == user_id)
+    #             .all()
+    #         )
+    #         results = [
+    #             {**{field: row[i] for i, field in enumerate(user_fields)}, 'role': row[4]}
+    #             for row in user_detail
+    #         ]
             
 
-            return jsonify(results)
+    #         return jsonify(results)
 
     @swag_from({
     'tags': ['Authentication'],  # You can adjust the tag name
@@ -186,8 +186,8 @@ class LoginView(MethodView):
             # Generate JWT token for the user
 
             if user:
-                # login_user(user)
-                # response_user = login_user(user)
+                login_user(user)
+                response_user = login_user(user)
                 role_slugs = (
                     db.session.query(Role.slug, User.email)
                     .join(UserRole, User.id == UserRole.user_id)
@@ -197,14 +197,13 @@ class LoginView(MethodView):
                 )
                 slug = ", ".join(row.slug for row in role_slugs)
                 # db.session.close_all
-                # token = Authentication.create_jwt_token(user.id, user.role)
                 token = Authentication.create_jwt_token(user.id, slug)
                 
                     # Create a response
             response = make_response(jsonify({
                 "message": "Login successful!",
-                "token" : token
-                # "response_user" : response_user
+                "token" : token,
+                "response_user" : response_user
             }), 200)
 
             # response.set_cookie('jwt_token', token, httponly=True, secure=True)
