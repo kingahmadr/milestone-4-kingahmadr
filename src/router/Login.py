@@ -1,11 +1,11 @@
 from flask.views import MethodView
-from flask import jsonify, request, render_template, make_response
+from flask import jsonify, request, make_response
 from flasgger import swag_from
 # from src.models.UserRoleModel import User, Role, UserRole
 from src.models.BankingModel import User, Role, UserRole
 from src.config.settings import db
 from src.services.AuthService import Authentication
-from flask_login import login_user, login_required
+from flask_login import login_required
 
 from werkzeug.security import check_password_hash
 
@@ -196,7 +196,7 @@ class LoginView(MethodView):
                     .all()
                 )
                 slug = ", ".join(row.slug for row in role_slugs)
-                db.session.close_all
+                # db.session.close_all
                 # token = Authentication.create_jwt_token(user.id, user.role)
                 token = Authentication.create_jwt_token(user.id, slug)
                 
@@ -234,7 +234,7 @@ class LoginView(MethodView):
                     .all()
                 )
                 slug = ", ".join(row.slug for row in role_slugs)
-                db.session.close_all
+                # db.session.close_all
                 # token = Authentication.create_jwt_token(user.id, user.role)
                 token = Authentication.create_jwt_token(user.id, slug)
                 

@@ -1,6 +1,6 @@
 from flask.views import MethodView
-from flask import jsonify, request, render_template, redirect, url_for
-from src.models.BankingModel import User, Role, Account
+from flask import jsonify, request, redirect, url_for
+from src.models.BankingModel import User, Role, UserRole
 from src.config.settings import db
 from flasgger import swag_from
 from werkzeug.security import generate_password_hash
@@ -18,27 +18,28 @@ class UserView(MethodView):
 
         active_user = Authentication.get_id_from_token(token)
         if active_user:
-            result = db.session.query(
+            user_data = db.session.query(
                 User.id,
                 User.username,
                 User.email,
-                Account.account_number,
-                Account.account_type,
-                Account.balance
-            ).join(Account, User.id == Account.user_id).filter(User.id == active_user).all()
-
-            user_data_account = []
-            for row in result:
-                user_data_account.append({
-                    'id': row[0],
-                    'username': row[1],
-                    'email': row[2],
-                    'account_number': row[3],
-                    'account_type': row[4],
-                    'balance': row[5]
-                })
-
-            return jsonify(user_data_account), 200
+                Role.slug
+            ).join(
+                UserRole, User.id == UserRole.user_id
+            ).join(
+                Role, UserRole.role_id == Role.id
+            ).filter(
+                User.id == active_user
+            ).first()
+            print(f"{user_data}")
+            if user_data:
+                return jsonify({
+                    'id': user_data.id,
+                    'username': user_data.username,
+                    'email': user_data.email,
+                    'role': user_data.slug
+                }), 200
+            return jsonify({'message': 'User not found'}), 404
+        return jsonify({'message': 'Unauthorized'}), 401
 
     @swag_from({
     'tags': ['Authentication'],  # Group under Authentication tag

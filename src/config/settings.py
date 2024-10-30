@@ -105,7 +105,7 @@ def create_app(settings_conf=None):
     app.add_url_rule('/v1/user/me', view_func=user_view, methods=['GET','PUT'])
 
     account_view = AccountView.as_view('account_view')
-    app.add_url_rule('/v1/accounts', view_func=account_view, methods=['POST'])
+    app.add_url_rule('/v1/accounts', view_func=account_view, methods=['POST','GET'])
     # app.add_url_rule('/v1/account/me', view_func=account_view, methods=['GET'])
     
 
