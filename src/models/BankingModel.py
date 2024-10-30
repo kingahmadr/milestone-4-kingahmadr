@@ -58,6 +58,7 @@ class Account(db.Model):
     account_type = db.Column(db.String(255), nullable=False)
     account_number = db.Column(db.String(255), unique=True, nullable=False)
     balance = db.Column(db.Numeric(10, 2), nullable=False, default=0.00)
+    is_deleted = db.Column(db.Boolean, nullable=False, default=False)
     created_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc))
     updated_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc), onupdate=lambda: datetime.now(timezone.utc))
     
@@ -71,7 +72,6 @@ class Transaction(db.Model):
     __tablename__ = 'transactions'
 
     id = db.Column(db.Integer, primary_key=True)
-    # account_id = db.Column(db.Integer, db.ForeignKey('accounts.id'), nullable=False)
     from_account_id = db.Column(db.Integer, db.ForeignKey('accounts.id'), nullable=True)  # Optional for transfers
     to_account_id = db.Column(db.Integer, db.ForeignKey('accounts.id'), nullable=True)  # Optional for deposits
     amount = db.Column(db.Float, nullable=False)
