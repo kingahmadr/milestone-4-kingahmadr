@@ -1,17 +1,44 @@
 from flask.views import MethodView
 from flask import jsonify, request, render_template, redirect, url_for
-from src.models.BankingModel import User, Role
+from src.models.BankingModel import User, Role, Account
 from src.config.settings import db
 from flasgger import swag_from
 from werkzeug.security import generate_password_hash
 from src.services.Validator import Validator
+from src.services.AuthService import Authentication
 
 
 class UserView(MethodView):
 
-    def get(self):
-        msg=''
-        return render_template('register.html', msg=msg)
+    @Authentication.token_required
+    def get(self, current_user):
+        token = request.headers.get('Authorization')
+        if token and token.startswith("Bearer "):
+            token = token.split("Bearer ")[1]
+
+        active_user = Authentication.get_id_from_token(token)
+        if active_user:
+            result = db.session.query(
+                User.id,
+                User.username,
+                User.email,
+                Account.account_number,
+                Account.account_type,
+                Account.balance
+            ).join(Account, User.id == Account.user_id).filter(User.id == active_user).all()
+
+            user_data_account = []
+            for row in result:
+                user_data_account.append({
+                    'id': row[0],
+                    'username': row[1],
+                    'email': row[2],
+                    'account_number': row[3],
+                    'account_type': row[4],
+                    'balance': row[5]
+                })
+
+            return jsonify(user_data_account), 200
 
     @swag_from({
     'tags': ['Authentication'],  # Group under Authentication tag
@@ -140,6 +167,39 @@ class UserView(MethodView):
                 return redirect(url_for('login_view'))
             else:
                 return jsonify(email_input), status_code
+
+    @Authentication.token_required
+    def put(self, current_user):
+        token = request.headers.get('Authorization')
+        if token and token.startswith("Bearer "):
+            token = token.split("Bearer ")[1]
+
+        active_user = Authentication.get_id_from_token(token)
+        if active_user:
+            data = request.get_json()
+            username = data.get('username')
+            email = data.get('email')
+            password_user= data.get('password')
+
+            # Check if username already exists
+            existing_user = User.query.filter_by(username=username).first()
+            if existing_user and existing_user.id != active_user:
+                return jsonify({"error": "Username already exists"}), 400
+
+            # Check if email already exists
+            existing_email = User.query.filter_by(email=email).first()
+            if existing_email and existing_email.id != active_user:
+                return jsonify({"error": "Email already exists"}), 400
+
+            user = User.query.get(active_user)
+            if user:
+                user.username = username
+                user.email = email
+                user.password_hash = generate_password_hash(password_user)
+                db.session.commit()
+                return jsonify({"message": "User updated successfully"}), 200
+            else:
+                return jsonify({"error": "User not found"}), 404
 
         
 
