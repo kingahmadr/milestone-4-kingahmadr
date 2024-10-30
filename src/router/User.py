@@ -86,7 +86,7 @@ class UserView(MethodView):
             role_name = data.get('role')
 
             # User checking in database
-            if User.query.filter_by(email=email).first():
+            if User.query.filter(email == email, username == username).first():
                 return jsonify({"error": "User already exists!"}), 400
             
             email_input, status_code = Validator.email_validation(email_request=email)

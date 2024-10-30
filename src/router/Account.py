@@ -23,9 +23,9 @@ class AccountView(MethodView):
             accountNumber = data.get('account_number')
             balance = data.get('balance')
 
-            existing_account_type = db.session.query(Account).filter_by(account_type=accountType).first()
+            existing_account_type = Account.query.filter(Account.account_type == accountType, Account.account_number == accountNumber).first()
             if existing_account_type:
-                return jsonify({"error": "Account type already exists"}), 400
+                return jsonify({"error": "Account type and Account number already exists"}), 400
 
             new_account = Account(
                 user_id=active_user,
@@ -40,6 +40,12 @@ class AccountView(MethodView):
 
             return jsonify({
                 "message": "Account created successfully",
-                "new account": new_account
+                "new account": {
+                    "id": new_account.id,
+                    "user_id": new_account.user_id,
+                    "account_type": new_account.account_type,
+                    "account_number": new_account.account_number,
+                    "balance": new_account.balance
+                }
             }), 201
 
