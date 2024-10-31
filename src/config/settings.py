@@ -79,6 +79,7 @@ def create_app(settings_conf=None):
     # from src.router.UserFetch import UserFetchView
     from src.router.User import UserView
     from src.router.Account import AccountView
+    from src.router.Transaction import TransactionView
     # from src.router.Review import ReviewView
     # from src.router.TestQuery import TestQueryView
     from src.models.BankingModel import User
@@ -108,6 +109,12 @@ def create_app(settings_conf=None):
     app.add_url_rule('/v1/accounts', view_func=account_view, methods=['POST','GET'])
     app.add_url_rule('/v1/accounts/<int:account_id>', view_func=account_view, methods=['GET','PUT','DELETE'])
     # app.add_url_rule('/v1/account/me', view_func=account_view, methods=['GET'])
+
+    transaction_view = TransactionView.as_view('transaction_view')
+    app.add_url_rule('/v1/transactions', view_func=transaction_view, methods=['POST','GET'])
+    # app.add_url_rule('/v1/transactions/<int:transaction_id>', view_func=transaction_view, methods=['GET','PUT','DELETE'])
+
+
     
 
     # test_query_view = TestQueryView.as_view('test_query_view')

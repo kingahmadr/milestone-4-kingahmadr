@@ -78,12 +78,12 @@ class Transaction(db.Model):
     created_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc))
     updated_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc), onupdate=lambda: datetime.now(timezone.utc))
 
-    def __init__(self, account_id, amount):
-        self.account_id = account_id
-        self.amount = amount
+    # def __init__(self, account_id, amount):
+    #     self.account_id = account_id
+    #     self.amount = amount
 
-    def __repr__(self):
-        return f'<Transaction {self.account_id}>'
+    # def __repr__(self):
+    #     return f'<Transaction {self.account_id}>'
 
 
     # Many Transactions belong to One Account (from_account)
