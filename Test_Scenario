@@ -1,0 +1,15 @@
+
+POST /users
+- Create a new user
+  - fields: username, email, password
+
+POST /login
+- Login
+
+GET /users/me
+- Get the current authenticated user
+
+PUT /users/me
+- Update the current authenticated user
+  - fields: username, email, password
+  - check if the updated fields are unique

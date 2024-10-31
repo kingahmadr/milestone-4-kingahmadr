@@ -1,8 +1,6 @@
 from datetime import datetime, timezone
 from flask_login import UserMixin
 from src.config.settings import db
-# from email_validator import validate_email, EmailNotValidError
-# from flask import jsonify
 
 
 class User(db.Model,UserMixin):

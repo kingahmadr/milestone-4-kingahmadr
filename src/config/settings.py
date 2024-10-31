@@ -112,7 +112,7 @@ def create_app(settings_conf=None):
 
     transaction_view = TransactionView.as_view('transaction_view')
     app.add_url_rule('/v1/transactions', view_func=transaction_view, methods=['POST','GET'])
-    # app.add_url_rule('/v1/transactions/<int:transaction_id>', view_func=transaction_view, methods=['GET','PUT','DELETE'])
+    app.add_url_rule('/v1/transactions/<int:transaction_id>', view_func=transaction_view, methods=['GET'])
 
 
     
