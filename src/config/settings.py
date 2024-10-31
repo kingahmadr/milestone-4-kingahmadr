@@ -28,7 +28,7 @@ def create_app(settings_conf=None):
     # Swagger configuration for securityDefinitions
     swagger_config = {
         "swagger": "2.0",
-        "title": "Mad API Module 7 Assignment",
+        "title": "Mad API Flask Bank Api Milestone 4",
         "description": "API documentation with JWT authentication",
         "securityDefinitions": {
             "Bearer": {

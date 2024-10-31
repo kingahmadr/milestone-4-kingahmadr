@@ -11,6 +11,50 @@ from src.services.AuthService import Authentication
 
 class UserView(MethodView):
 
+    @swag_from({
+        'tags': ['User'],  # Group under Authentication tag
+        'summary': 'Get current user',
+        'description': 'Endpoint to get the current user with an username, email, role.',
+        'security': [{'Bearer': []}],  # Include Bearer token authentication
+        'responses': {
+            '200': {
+                'description': 'User found',
+                'schema': {
+                    'type': 'object',
+                    'properties': {
+                        'id': {
+                            'type': 'integer',
+                            'example': 1
+                        },
+                        'username': {
+                            'type': 'string',
+                            'example': 'username1'
+                        },
+                        'email': {
+                            'type': 'string',
+                            'example': 'user@example.com'
+                        },
+                        'role': {
+                            'type': 'string',
+                            'example': 'admin'
+                        }
+                    }
+                }
+            },
+            '401': {
+                'description': 'Unauthorized access',
+                'schema': {
+                    'type': 'object',
+                    'properties': {
+                        'message': {
+                            'type': 'string',
+                            'example': 'Unauthorized'
+                        }
+                    }
+                }
+            }
+        }
+    })
     @login_required
     @Authentication.token_required
     def get(self, current_user):
@@ -44,7 +88,7 @@ class UserView(MethodView):
         return jsonify({'message': 'Unauthorized'}), 401
 
     @swag_from({
-    'tags': ['Authentication'],  # Group under Authentication tag
+    'tags': ['User'],  # Group under Authentication tag
     'summary': 'User registration',
     'description': 'Endpoint to register a new user with an username, email, password and role.',
     'parameters': [
@@ -52,7 +96,7 @@ class UserView(MethodView):
             'name': 'body',
             'in': 'body',
             'required': True,
-            'description': 'Email and password for user registration',
+            'description': 'Email, Username, password for user registration',
             'schema': {
                 'type': 'object',
                 'properties': {
@@ -77,6 +121,7 @@ class UserView(MethodView):
             }
         }
     ],
+    'security': [{'Bearer': []}],  # Include Bearer token authentication
     'responses': {
         201: {
             'description': 'User registered successfully',
@@ -170,9 +215,79 @@ class UserView(MethodView):
                 return redirect(url_for('login_view'))
             else:
                 return jsonify(email_input), status_code
-
+    @swag_from({
+        'tags': ['User'],
+        'summary': 'Update current user',
+        'description': 'Update current user',
+        'parameters': [
+            {
+                'name': 'body',
+                'in': 'body',
+                'required': True,
+                'description': 'username, email, password for user update',
+                'schema': {
+                    'type': 'object',
+                    'properties': {
+                        'username': {
+                            'type': 'string',
+                            'example': 'username1'
+                        },
+                        'email': {
+                            'type': 'string',
+                            'example': 'newuser@example.com'
+                        },
+                        'password': {
+                            'type': 'string',
+                            'example': 'password123'
+                        }
+                    },
+                }
+            }
+        ],
+        'security': [{'Bearer': []}],  # Include Bearer token authentication
+        'responses': {
+            200: {
+                'description': 'User updated successfully',
+                'schema': {
+                    'type': 'object',
+                    'properties': {
+                        'message': {
+                            'type': 'string',
+                            'example': 'User updated successfully!'
+                        }
+                    }
+                }
+            },
+            400: {
+                'description': 'Username or email already exists',
+                'schema': {
+                    'type': 'object',
+                    'properties': {
+                        'error': {
+                            'type': 'string',
+                            'example': 'Username already exists!'
+                        }
+                    }
+                }
+            },
+            404: {
+                'description': 'User not found',
+                'schema': {
+                    'type': 'object',
+                    'properties': {
+                        'error': {
+                            'type': 'string',
+                            'example': 'User not found!'
+                        }
+                    }
+                }
+            }
+        }
+    })
+    @login_required
     @Authentication.token_required
     def put(self, current_user):
+    # def put(self):
         token = request.headers.get('Authorization')
         if token and token.startswith("Bearer "):
             token = token.split("Bearer ")[1]
@@ -193,14 +308,24 @@ class UserView(MethodView):
             existing_email = User.query.filter_by(email=email).first()
             if existing_email and existing_email.id != active_user:
                 return jsonify({"error": "Email already exists"}), 400
-
+            
             user = User.query.get(active_user)
+            # user = User.query.filter_by(email='mamad4@email.com').first()
+            # print(user)
+            # return jsonify({"error": "User not found"}), 404
             if user:
-                user.username = username
-                user.email = email
-                user.password_hash = generate_password_hash(password_user)
-                db.session.commit()
-                return jsonify({"message": "User updated successfully"}), 200
+                if password_user:
+                    user.username = username
+                    user.email = email
+                    user.password_hash = generate_password_hash(password_user)
+                    db.session.commit()
+                    return jsonify({"message": "User updated successfully"}), 200
+                else:
+                    user.username = username
+                    user.email = email
+                    db.session.commit()
+                    return jsonify({"message": "User updated successfully"}), 200
+            
             else:
                 return jsonify({"error": "User not found"}), 404
 

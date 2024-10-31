@@ -21,6 +21,7 @@ class LogoutView(MethodView):
                     }
                 }
     })
+    
     def get(self):
         # Create a response object
         # Clear the JWT token cookie by setting it to an empty value

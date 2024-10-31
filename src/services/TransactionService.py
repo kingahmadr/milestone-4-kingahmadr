@@ -10,6 +10,7 @@ class Transaction_service:
         transaction_list = []
         for transaction in transactions:
             transaction_list.append({
+                "id": transaction.id,
                 "from_account_id": transaction.from_account_id,
                 "to_account_id": transaction.to_account_id,
                 "amount": transaction.amount,
@@ -43,45 +44,51 @@ class Transaction_service:
             }), 200
 
     def transfer_to_account(from_account_id, to_account_id, amount):
-        checking_account_type = Account.query.filter_by(
+        checking_from_account_type = Account.query.filter_by(
             id=from_account_id, account_type='checking',
             is_deleted=False
             ).first()
         
-        if not checking_account_type:
+        if not checking_from_account_type:
             return jsonify({"message": "Your account not allowed to transfer"}), 403
         
-        if checking_account_type.balance < amount:
+        if checking_from_account_type.balance < amount:
             return jsonify({"message": "Insufficient funds"}), 400
 
-        elif checking_account_type.balance >= amount:
-            checking_account_type.balance -= amount
-            checkint_to_account_type = Account.query.filter_by(
+        elif checking_from_account_type.balance >= amount:
+            checking_to_account_type = Account.query.filter_by(
                 id=to_account_id, account_type='checking',
                 is_deleted=False
                 ).first()
             
-            checkint_to_account_type.balance += amount
-            db.session.commit()
+            if checking_to_account_type:
+                checking_from_account_type.balance -= amount
 
-            new_transaction = Transaction(
-                from_account_id=from_account_id,
-                to_account_id=to_account_id,
-                amount=amount,
-            )
+                checking_to_account_type.balance += amount
+                db.session.commit()
 
-            db.session.add(new_transaction)
-            db.session.commit()
+                new_transaction = Transaction(
+                    from_account_id=from_account_id,
+                    to_account_id=to_account_id,
+                    amount=amount,
+                )
 
-            return jsonify({
-                "message": "Transfer transaction created successfully",
-                "new transaction": {
-                    "id": new_transaction.id,
-                    "from_account_id": new_transaction.from_account_id,
-                    "to_account_id": new_transaction.to_account_id,
-                    "amount": new_transaction.amount
-                }
-            }), 200
+                db.session.add(new_transaction)
+                db.session.commit()
+
+                return jsonify({
+                    "message": "Transfer transaction created successfully",
+                    "new transaction": {
+                        "id": new_transaction.id,
+                        "from_account_id": new_transaction.from_account_id,
+                        "to_account_id": new_transaction.to_account_id,
+                        "amount": new_transaction.amount
+                    }
+                }), 200
+            else:
+                return jsonify({
+                    "message": "To account not found"
+                }), 404
 
     def withdraw_from_account(from_account_id,to_account_id, amount):
         
