@@ -224,8 +224,8 @@ class UserView(MethodView):
                 else:
                     return jsonify({"error": f"Role '{role_name}' not found!"}), 400
 
-                # db.session.add(new_user)
-                # db.session.commit()
+                db.session.add(new_user)
+                db.session.commit()
                 
                 return jsonify({"message": "User registered successfully!"}), 201
                 # return (email_input), status_code
