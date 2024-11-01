@@ -10,3 +10,4 @@ Dockerfile.stage
 Dockerfile
 mysql_app_data
 app_data
+README.md
