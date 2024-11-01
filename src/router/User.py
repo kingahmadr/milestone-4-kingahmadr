@@ -1,9 +1,9 @@
+from flasgger import swag_from
 from flask.views import MethodView
 from flask import jsonify, request, redirect, url_for
 from flask_login import login_required
 from src.models.BankingModel import User, Role, UserRole
 from src.config.settings import db
-from flasgger import swag_from
 from werkzeug.security import generate_password_hash
 from src.services.Validator import Validator
 from src.services.AuthService import Authentication
@@ -102,7 +102,7 @@ class UserView(MethodView):
                 'properties': {
                     'username': {
                         'type': 'string',
-                        'example': 'username1'
+                        'example': 'username21'
                     },
                     'email': {
                         'type': 'string',
@@ -114,14 +114,14 @@ class UserView(MethodView):
                     },
                     'role': {
                         'type': 'string',
-                        'example': 'admin'
+                        'example': 'user'
                     }
                 },
                 'required': ['username','email', 'password','role']
             }
         }
     ],
-    'security': [{'Bearer': []}],  # Include Bearer token authentication
+    # 'security': [{'Bearer': []}],  # Include Bearer token authentication
     'responses': {
         201: {
             'description': 'User registered successfully',
@@ -150,21 +150,67 @@ class UserView(MethodView):
     }
 })
 
-    def post(self):
-        # data = request.json        
+    # def post(self):
+    #     data = request.json if request.is_json else request.form
+        
+    #     # Check for required fields
+    #     if all(field in data for field in ['username', 'email', 'password']):
+    #         username = data.get('username')
+    #         email = data.get('email')
+    #         password = data.get('password')
+    #         role_name = data.get('role')
 
-        if 'username' in request.json and 'email' in request.json and 'password' in request.json:       
-            data = request.json
+    #         # Check if user already exists
+    #         if User.query.filter_by(email=email).first():
+    #             return jsonify({"error": "User with this email already exists!"}), 400
+            
+    #         if User.query.filter_by(username=username).first():
+    #             return jsonify({"error": "User with this username already exists!"}), 400
+
+    #         # Validate email
+    #         email_input, status_code = Validator.email_validation(email_request=email)
+    #         if status_code != 200:
+    #             return jsonify(email_input), status_code
+
+    #         # Hash the password and create the user
+    #         hashed_password = generate_password_hash(password)
+    #         new_user = User(username=username, email=email, password_hash=hashed_password)
+
+    #         # Assign role if it exists
+    #         if role_name:
+    #             role = Role.query.filter_by(slug=role_name).first()
+    #             if role:
+    #                 new_user.roles.append(role)
+    #             else:
+    #                 return jsonify({"error": f"Role '{role_name}' not found!"}), 400
+
+    #         # Save new user to the database
+    #         db.session.add(new_user)
+    #         db.session.commit()
+
+    #         if request.is_json:
+    #             return jsonify({"message": "User registered successfully!"}), 201
+    #         else:
+    #             return redirect(url_for('login_view'))
+    #     else:
+    #         return jsonify({"error": "Missing required fields: username, email, or password."}), 400
+
+    def post(self):
+        # data = request.json  
+        # return jsonify({"message": "User registered successfully!"}), 201
+
+        if 'username' in request.json and 'email' in request.json and 'password' in request.json and 'role' in request.json:
+            data = request.get_json()
             username = data.get('username')
             email = data.get('email')
             password = data.get('password')
             role_name = data.get('role')
 
-            # User checking in database
-            if User.query.filter(email == email, username == username).first():
-                return jsonify({"error": "User already exists!"}), 400
-            
-            email_input, status_code = Validator.email_validation(email_request=email)
+            if User.query.filter_by(email=email).first():
+                # return jsonify({"error": "User already exists!"}), 400
+                return jsonify({"error": "User with this email already exists!"}), 400
+
+            email_input, status_code = Validator.email_validation(email)
 
             if status_code == 200:
                 # Hash the user's password and create a new user
@@ -178,12 +224,13 @@ class UserView(MethodView):
                 else:
                     return jsonify({"error": f"Role '{role_name}' not found!"}), 400
 
-                db.session.add(new_user)
-                db.session.commit()
-
-                return jsonify({"message": "User registered successfully!"}), 201
+                # db.session.add(new_user)
+                # db.session.commit()
+                
+                # return jsonify({"message": "User registered successfully!"}), 201
+                return (email_input), status_code
             else:
-                return(email_input), status_code
+                return (email_input), status_code
                 
         if 'username' in request.form and 'email' in request.form and 'password' in request.form:
             username = request.form['username']
@@ -195,7 +242,7 @@ class UserView(MethodView):
             if User.query.filter_by(email=email).first():
                 return jsonify({"error": "User already exists!"}), 400
 
-            email_input, status_code = User.email_validation(email_request=email)
+            email_input, status_code = Validator.email_validation(email_request=email)
 
             if status_code == 200:
                 # Hash the user's password and create a new user
@@ -215,6 +262,7 @@ class UserView(MethodView):
                 return redirect(url_for('login_view'))
             else:
                 return jsonify(email_input), status_code
+            
     @swag_from({
         'tags': ['User'],
         'summary': 'Update current user',
