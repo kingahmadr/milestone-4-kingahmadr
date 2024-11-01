@@ -94,8 +94,11 @@ class Transaction_service:
         
         if from_account_id == to_account_id:
             query_account_id = Account.query.filter_by(
-                id=from_account_id, is_deleted=False
+                id=from_account_id, account_type='checking', is_deleted=False
                 ).first()
+            
+            if not query_account_id:
+                return jsonify({"message": "Your account not allowed to withdraw"}), 403
         
             print(f"Account found: ID={query_account_id.id}, Type={query_account_id.account_type}, Is Deleted={query_account_id.is_deleted}")
                
