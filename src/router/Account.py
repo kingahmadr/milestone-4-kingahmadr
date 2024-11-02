@@ -133,30 +133,43 @@ class AccountView(MethodView):
                 'description': 'Type of account',
                 'required': True,
                 'schema': {
-                    'type': 'string',
-                    'example': 'checking'
+                    'type': 'object',
+                    'properties': {
+                        'account_type': {
+                            'type': 'string',
+                            'example': 'checking'
+                        },
+                        'account_number': {
+                            'type': 'string',
+                            'example': '1234567890'
+                        },
+                        'balance': {
+                            'type': 'number',
+                            'example': 1000.00
+                        }
+                    }
                 }
             },
-            {
-                'name': 'account_number',
-                'in': 'body',
-                'description': 'Unique account number',
-                'required': True,
-                'schema': {
-                    'type': 'string',
-                    'example': '1234567890'
-                }
-            },
-            {
-                'name': 'balance',
-                'in': 'body',
-                'description': 'Balance of the account',
-                'required': True,
-                'schema': {
-                    'type': 'number',
-                    'example': 1000.00
-                }
-            }
+            # {
+            #     'name': 'account_number',
+            #     'in': 'body',
+            #     'description': 'Unique account number',
+            #     'required': True,
+            #     'schema': {
+            #         'type': 'string',
+            #         'example': '1234567890'
+            #     }
+            # },
+            # {
+            #     'name': 'balance',
+            #     'in': 'body',
+            #     'description': 'Balance of the account',
+            #     'required': True,
+            #     'schema': {
+            #         'type': 'number',
+            #         'example': 1000.00
+            #     }
+            # }
         ],
         'security': [{'Bearer': []}],
         'responses': {
