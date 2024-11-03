@@ -1,0 +1,43 @@
+services:
+  mysql-service:
+    image: mysql:8
+    container_name: mysql_app_container
+    environment:
+      MYSQL_ROOT_PASSWORD: KYaMsGN8cHCAnu64  # Change this to a secure password
+      MYSQL_DATABASE: module7-revou         # Default database to create
+      MYSQL_USER: revou                 # Change this to your desired user
+      MYSQL_PASSWORD: KYaMsGN8cHCAnu64         # Change this to a secure password
+    ports:
+      - "4336:3306"  # Expose MySQL on port 3306
+    volumes:
+      - mysql_app_data:/var/lib/mysql  # Persist database data
+      # - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - apps_network
+  
+  app-service:
+    image: "docker.io/sultanahmad/python-flask:dev"
+    # image: "local-flask-app:assignment-7"
+    # image: "local-flask-app:hypercorn-v2"
+    container_name: "flask_app_container"
+    environment:
+      DB_URI_PROD: mysql+pymysql://falsk-user:KYaMsGN8cHCAnu64@mysql-service:3306/production
+      DB_URI_STAGING: mysql+pymysql://falsk-user:KYaMsGN8cHCAnu64@mysql-service:3306/staging
+      JWT_SECRET: Bf*xp6KGUfr7B@H5
+      KEY_SECRET: 230480239jnnlkjflasd
+    ports:
+      - "5000:5000"
+    volumes:
+      - app_data:/app
+    depends_on:
+      - mysql-service
+    pull_policy: always
+    networks:
+      - apps_network
+
+volumes:
+  mysql_app_data:
+  app_data:
+
+networks:
+  apps_network:

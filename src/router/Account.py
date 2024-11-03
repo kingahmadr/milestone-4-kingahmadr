@@ -331,7 +331,10 @@ class AccountView(MethodView):
             data = request.get_json()
             Account_Number = data.get('account_number')
 
-            # account = Account.query.get(account_id).filter(user_id=active_user).first()
+            is_account_number_exist = Account.query.filter_by(account_number=Account_Number).first()
+            if is_account_number_exist:
+                return jsonify({"error": "Account number already exists"}), 400
+
             account = Account.query.filter_by(id=account_id, user_id=active_user).first()
             if not account:
                 return jsonify({"error": "Account not found"}), 404
