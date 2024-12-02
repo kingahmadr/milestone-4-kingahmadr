@@ -57,8 +57,8 @@ COPY --from=runtime /app /app
 
 WORKDIR /app
 
-# Expose Fluentd's port
-EXPOSE 24224
+# # Expose Fluentd's port
+# EXPOSE 24224
 
 # Set up Fluentd configuration environment variable
 ENV FLUENT_CONF=/fluentd/etc/fluent.conf
@@ -76,7 +76,7 @@ RUN  apt-get update && apt-get install -y supervisor
 COPY supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 
 # Expose required ports
-EXPOSE 5000 24224
+# EXPOSE 5000 24224
 
 # Run both Fluentd and Python application using supervisord
 CMD ["/usr/bin/supervisord", "-c", "/etc/supervisor/supervisord.conf"]
