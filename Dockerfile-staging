@@ -1,0 +1,82 @@
+# Stage 1: Build the Python application
+FROM python:3.12-alpine AS base
+
+# Install Poetry
+RUN pip install poetry
+
+# Set up environment variables for Poetry
+ENV POETRY_HOME="/opt/poetry" \
+    POETRY_VIRTUALENVS_CREATE=true \
+    POETRY_VIRTUALENVS_IN_PROJECT=true \
+    POETRY_NO_INTERACTION=1
+
+ENV PATH="$PATH:$POETRY_HOME/bin"
+
+# Stage 2: Build the Python application with Poetry
+FROM base AS build
+
+WORKDIR /app
+
+# Copy pyproject.toml and poetry.lock files
+COPY pyproject.toml poetry.lock ./
+
+# Install dependencies
+RUN poetry install --no-interaction --only main
+
+# Copy the rest of the application
+COPY . .
+
+# Stage 3: Runtime stage for the Python app
+FROM base AS runtime
+
+WORKDIR /app
+
+# Copy the Python app and the installed dependencies from the build stage
+COPY --from=build /app /app
+
+# Activate virtual environment in PATH
+ENV PATH="/app/.venv/bin:$PATH"
+
+# Install Hypercorn for the app server
+RUN pip install hypercorn
+
+# Expose the port for the application
+EXPOSE 5000
+
+# Command to run Hypercorn with the app
+CMD ["hypercorn", "app:app", "--bind", "0.0.0.0:5000", "--reload"]
+
+# Stage 4: Build Fluentd container
+FROM fluent/fluentd:v1.16-debian-1 AS fluentd
+
+# Copy Fluentd configuration
+COPY fluentd.conf /fluentd/etc/fluent.conf
+
+# Copy the Python app from the build stage into Fluentd container
+COPY --from=runtime /app /app
+
+WORKDIR /app
+
+# Expose Fluentd's port
+EXPOSE 24224
+
+# Set up Fluentd configuration environment variable
+ENV FLUENT_CONF=/fluentd/etc/fluent.conf
+
+# Stage 5: Final image to run both Python app and Fluentd
+FROM fluentd AS final
+
+# Switch to root user to install supervisor
+USER root
+
+# Install supervisord to manage both Fluentd and the Python app
+RUN  apt-get update && apt-get install -y supervisor
+
+# Copy supervisord configuration
+COPY supervisord.conf /etc/supervisor/conf.d/supervisord.conf
+
+# Expose required ports
+EXPOSE 5000 24224
+
+# Run both Fluentd and Python application using supervisord
+CMD ["/usr/bin/supervisord", "-c", "/etc/supervisor/supervisord.conf"]
